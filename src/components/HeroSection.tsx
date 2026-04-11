@@ -31,12 +31,12 @@ const HeroSection = () => {
       <div className="absolute inset-0">
         <img
           src={heroImage}
-          alt="Model wearing premium streetwear"
-          className="w-full h-full object-cover object-top"
-          width={1280}
-          height={1920}
+          alt="Jersey hanging on clothesline against blue sky"
+          className="w-full h-full object-cover object-center"
+          width={720}
+          height={1280}
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-foreground/80 via-foreground/50 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-foreground/85 via-foreground/60 to-foreground/30" />
       </div>
 
       {/* Content */}
