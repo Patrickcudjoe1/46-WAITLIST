@@ -36,7 +36,7 @@ const HeroSection = () => {
           width={720}
           height={1280}
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-foreground/85 via-foreground/60 to-foreground/30" />
+        <div className="absolute inset-0 bg-gradient-to-r from-foreground/80 via-foreground/40 to-transparent" />
       </div>
 
       {/* Content */}
@@ -51,9 +51,9 @@ const HeroSection = () => {
           className="text-primary-foreground font-display text-6xl md:text-8xl lg:text-9xl font-bold leading-[0.9] mb-6 opacity-0 animate-fade-up"
           style={{ animationDelay: "0.4s" }}
         >
-          BUILT
+          JUNE
           <br />
-          DIFFERENT.
+          FORTH*
         </h1>
         <p
           className="text-primary-foreground/70 font-body text-lg md:text-xl font-light mb-2 opacity-0 animate-fade-up"
