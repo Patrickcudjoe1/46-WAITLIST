@@ -51,9 +51,9 @@ const HeroSection = () => {
           className="text-primary-foreground font-display text-6xl md:text-8xl lg:text-9xl font-bold leading-[0.9] mb-6 opacity-0 animate-fade-up"
           style={{ animationDelay: "0.4s" }}
         >
-          BUILT
+          JUNE
           <br />
-          DIFFERENT.
+          FORTH*
         </h1>
         <p
           className="text-primary-foreground/70 font-body text-lg md:text-xl font-light mb-2 opacity-0 animate-fade-up"
