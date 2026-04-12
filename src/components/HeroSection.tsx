@@ -36,7 +36,7 @@ const HeroSection = () => {
   ];
 
   return (
-    <section className="min-h-screen bg-white flex flex-col md:grid md:grid-cols-2 overflow-hidden">
+    <section className="min-h-screen bg-white flex flex-col-reverse md:grid md:grid-cols-2 overflow-hidden">
       {/* Left Column: Content */}
       <div className="flex flex-col justify-center px-6 py-12 md:px-16 lg:px-24 xl:px-32 z-10">
         {/* Logo */}
@@ -117,7 +117,7 @@ const HeroSection = () => {
       </div>
 
       {/* Right Column: Image */}
-      <div className="relative h-64 md:h-full w-full bg-zinc-100">
+      <div className="relative h-[60vh] md:h-full w-full bg-zinc-100">
         <div className="absolute inset-0 md:m-4 overflow-hidden md:rounded-3xl">
           <img
             src={heroFashion}
