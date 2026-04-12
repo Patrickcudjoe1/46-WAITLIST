@@ -1,10 +1,8 @@
 import HeroSection from "@/components/HeroSection";
-import CountdownSection from "@/components/CountdownSection";
 
 const Index = () => (
-  <main className="scroll-smooth">
+  <main className="scroll-smooth bg-white">
     <HeroSection />
-    <CountdownSection />
   </main>
 );
 
