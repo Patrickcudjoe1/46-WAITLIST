@@ -41,20 +41,20 @@ const HeroSection = () => {
       <div className="flex flex-col justify-center px-6 py-12 md:px-16 lg:px-24 xl:px-32 z-10">
         {/* Logo */}
         <div className="flex items-center gap-2 mb-20 md:mb-32">
-          <img 
-            src={juneLogo} 
-            alt="June Forth Logo" 
+          <img
+            src={juneLogo}
+            alt="June Forth Logo"
             className="h-10 w-auto object-contain brightness-0"
           />
         </div>
 
         {/* Badge */}
         <div className="mb-6">
-          <Badge 
-            variant="secondary" 
+          <Badge
+            variant="secondary"
             className="bg-zinc-100 text-zinc-600 hover:bg-zinc-100 border-none px-3 py-1 font-body text-[10px] tracking-wider font-bold uppercase"
           >
-            Launching Nov 24th, 2024
+            Launching Soon
           </Badge>
         </div>
 
