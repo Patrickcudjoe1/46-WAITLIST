@@ -1,4 +1,3 @@
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import landscapeHero from "@/assets/landscape hero.jpeg";
 import asamoahHero from "@/assets/asamoah.jpeg";
 
@@ -28,27 +27,12 @@ const HeroSection = () => {
           className="absolute inset-0 hidden h-full w-full object-cover md:block"
         />
 
-        {/* Side arrows (visual only) */}
-        <button
-          type="button"
-          aria-label="Previous"
-          className="absolute left-2 top-1/2 z-20 -translate-y-1/2 text-white/70 transition hover:text-white md:left-4"
-        >
-          <ChevronLeft className="h-6 w-6" />
-        </button>
-        <button
-          type="button"
-          aria-label="Next"
-          className="absolute right-2 top-1/2 z-20 -translate-y-1/2 text-white/70 transition hover:text-white md:right-4"
-        >
-          <ChevronRight className="h-6 w-6" />
-        </button>
       </section>
 
       <section className="bg-[#f6f6f4] px-6 py-20 md:py-28">
         <div className="mx-auto max-w-md text-center">
           <h2 className="font-display text-3xl font-extrabold normal-case tracking-normal text-black md:text-4xl">
-            Flowerboy Collection
+            46 Jersey Collection
           </h2>
           <p className="mt-3 font-body text-[10px] font-medium uppercase tracking-[0.2em] text-black md:text-xs">
             New drop coming soon, sign up to get notified when we drop 🌸
