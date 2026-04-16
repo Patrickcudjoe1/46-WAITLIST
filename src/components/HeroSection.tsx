@@ -1,7 +1,27 @@
+import { FormEvent, useState } from "react";
 import landscapeHero from "@/assets/landscape hero.jpeg";
 import asamoahHero from "@/assets/asamoah.jpeg";
+import { sendWaitlistNotification } from "@/lib/waitlistEmail";
 
 const HeroSection = () => {
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setStatus("loading");
+
+    try {
+      await sendWaitlistNotification({ email, phone });
+      setStatus("success");
+      setEmail("");
+      setPhone("");
+    } catch {
+      setStatus("error");
+    }
+  };
+
   return (
     <>
       <section className="relative h-screen min-h-[640px] w-full overflow-hidden bg-black">
@@ -38,24 +58,39 @@ const HeroSection = () => {
             New drop coming soon, sign up to get notified when we drop 🌸
           </p>
 
-          <form className="mx-auto mt-16 w-full max-w-[360px] space-y-3">
+          <form onSubmit={handleSubmit} className="mx-auto mt-16 w-full max-w-[360px] space-y-3">
             <input
               type="email"
               placeholder="Enter your email address"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+              required
               className="h-11 w-full border border-black bg-transparent px-3 font-body text-sm text-black placeholder:text-black/60 focus:outline-none"
             />
             <input
               type="tel"
               placeholder="Phone Number"
+              value={phone}
+              onChange={(event) => setPhone(event.target.value)}
+              required
               className="h-11 w-full border border-black bg-transparent px-3 font-body text-sm text-black placeholder:text-black/60 focus:outline-none"
             />
             <button
               type="submit"
+              disabled={status === "loading"}
               className="h-12 w-full rounded-md bg-black font-body text-sm font-semibold text-white transition hover:bg-black/90"
             >
-              Sign up
+              {status === "loading" ? "Submitting..." : "Sign up"}
             </button>
           </form>
+          {status === "success" && (
+            <p className="mt-4 text-xs font-medium text-black">Signup submitted successfully.</p>
+          )}
+          {status === "error" && (
+            <p className="mt-4 text-xs font-medium text-red-600">
+              Unable to send right now. Please try again.
+            </p>
+          )}
         </div>
       </section>
     </>
