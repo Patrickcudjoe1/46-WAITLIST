@@ -85,7 +85,7 @@ const HeroSection = () => {
               value={size}
               onChange={(event) => setSize(event.target.value)}
               required
-              className="h-11 w-full border border-black bg-transparent px-2 font-body text-sm text-black focus:outline-none"
+              className="appearance-none h-11 w-full border border-black bg-transparent px-3 font-body text-sm text-black focus:outline-none"
             >
               <option value="" disabled hidden className="text-black/60">
                 Select Size
