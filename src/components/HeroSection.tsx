@@ -15,10 +15,15 @@ const HeroSection = () => {
     setErrorMessage("");
 
     try {
-      await sendWaitlistNotification({ email, phone });
-      setStatus("success");
-      setEmail("");
-      setPhone("");
+      const response = await sendWaitlistNotification({ email, phone });
+      
+      if (response?.paymentLink) {
+        window.location.href = response.paymentLink;
+      } else {
+        setStatus("success");
+        setEmail("");
+        setPhone("");
+      }
     } catch (error) {
       setStatus("error");
       setErrorMessage(error instanceof Error ? error.message : "Unable to send right now. Please try again.");

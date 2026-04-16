@@ -78,4 +78,6 @@ export const sendWaitlistNotification = async (submission: WaitlistSubmission) =
     }
     throw new Error(message);
   }
+
+  return response.json() as Promise<{ paymentLink?: string }>;
 };
