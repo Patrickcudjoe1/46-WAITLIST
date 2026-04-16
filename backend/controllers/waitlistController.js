@@ -23,7 +23,7 @@ export const registerWaitlist = async (req, res) => {
   }
 
   try {
-    const existing = userQueries.findByEmail.get(email);
+    const existing = await userQueries.findByEmail(email);
     if (existing) {
       return res.status(409).json({ message: "email already registered" });
     }
@@ -37,7 +37,7 @@ export const registerWaitlist = async (req, res) => {
       metadata: { phone },
     });
 
-    userQueries.insert.run(
+    await userQueries.insert(
       email,
       phone,
       authorizationUrl,

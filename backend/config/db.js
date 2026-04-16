@@ -1,12 +1,13 @@
-import Database from "better-sqlite3";
-import path from "node:path";
+import { createClient } from "@libsql/client";
+import "dotenv/config";
 
-const dbFile = path.join(process.cwd(), "data.sqlite");
-export const db = new Database(dbFile);
+export const db = createClient({
+  url: process.env.TURSO_DATABASE_URL || "file:data.sqlite",
+  authToken: process.env.TURSO_AUTH_TOKEN,
+});
 
-db.pragma("journal_mode = WAL");
-
-db.exec(`
+// Initialize table
+db.execute(`
   CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     email TEXT NOT NULL UNIQUE,
@@ -16,17 +17,37 @@ db.exec(`
     paymentStatus TEXT NOT NULL,
     createdAt TEXT NOT NULL
   );
-`);
+`).catch((err) => {
+  console.error("Failed to initialize database table:", err);
+});
 
 export const userQueries = {
-  findByEmail: db.prepare("SELECT * FROM users WHERE email = ? LIMIT 1"),
-  findByReference: db.prepare("SELECT * FROM users WHERE paymentReference = ? LIMIT 1"),
-  insert: db.prepare(
-    `INSERT INTO users (email, phone, paymentLink, paymentReference, paymentStatus, createdAt)
-     VALUES (?, ?, ?, ?, ?, ?)`,
-  ),
-  markPaid: db.prepare(
-    `UPDATE users SET paymentStatus = 'paid' WHERE paymentReference = ?`,
-  ),
+  findByEmail: async (email) => {
+    const result = await db.execute({
+      sql: "SELECT * FROM users WHERE email = ? LIMIT 1",
+      args: [email],
+    });
+    return result.rows[0];
+  },
+  findByReference: async (reference) => {
+    const result = await db.execute({
+      sql: "SELECT * FROM users WHERE paymentReference = ? LIMIT 1",
+      args: [reference],
+    });
+    return result.rows[0];
+  },
+  insert: async (email, phone, paymentLink, paymentReference, paymentStatus, createdAt) => {
+    return await db.execute({
+      sql: `INSERT INTO users (email, phone, paymentLink, paymentReference, paymentStatus, createdAt)
+            VALUES (?, ?, ?, ?, ?, ?)`,
+      args: [email, phone, paymentLink, paymentReference, paymentStatus, createdAt],
+    });
+  },
+  markPaid: async (reference) => {
+    return await db.execute({
+      sql: `UPDATE users SET paymentStatus = 'paid' WHERE paymentReference = ?`,
+      args: [reference],
+    });
+  },
 };
 

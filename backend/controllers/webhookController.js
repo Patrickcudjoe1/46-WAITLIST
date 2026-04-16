@@ -6,7 +6,7 @@ const verifySignature = ({ rawBody, signature, secret }) => {
   return hash === signature;
 };
 
-export const paystackWebhook = (req, res) => {
+export const paystackWebhook = async (req, res) => {
   const secret = process.env.PAYSTACK_WEBHOOK_SECRET;
   if (!secret) {
     return res.status(500).json({ message: "Missing PAYSTACK_WEBHOOK_SECRET" });
@@ -43,12 +43,12 @@ export const paystackWebhook = (req, res) => {
   }
 
   try {
-    const user = userQueries.findByReference.get(reference);
+    const user = await userQueries.findByReference(reference);
     if (!user) {
       return res.status(404).json({ message: "User not found for reference" });
     }
 
-    userQueries.markPaid.run(reference);
+    await userQueries.markPaid(reference);
     return res.status(200).json({ ok: true });
   } catch (error) {
     const message = error instanceof Error ? error.message : "unknown error";
