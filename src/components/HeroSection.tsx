@@ -4,6 +4,9 @@ import asamoahHero from "@/assets/asamoah.jpeg";
 import { sendWaitlistNotification } from "@/lib/waitlistEmail";
 
 const HeroSection = () => {
+  const [name, setName] = useState("");
+  const [size, setSize] = useState("");
+  const [location, setLocation] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
@@ -15,12 +18,15 @@ const HeroSection = () => {
     setErrorMessage("");
 
     try {
-      const response = await sendWaitlistNotification({ email, phone });
+      const response = await sendWaitlistNotification({ name, size, location, email, phone });
       
       if (response?.paymentLink) {
         window.location.href = response.paymentLink;
       } else {
         setStatus("success");
+        setName("");
+        setSize("");
+        setLocation("");
         setEmail("");
         setPhone("");
       }
@@ -68,8 +74,40 @@ const HeroSection = () => {
 
           <form onSubmit={handleSubmit} className="mx-auto mt-16 w-full max-w-[360px] space-y-3">
             <input
+              type="text"
+              placeholder="Full Name"
+              value={name}
+              onChange={(event) => setName(event.target.value)}
+              required
+              className="h-11 w-full border border-black bg-transparent px-3 font-body text-sm text-black placeholder:text-black/60 focus:outline-none"
+            />
+            <select
+              value={size}
+              onChange={(event) => setSize(event.target.value)}
+              required
+              className="h-11 w-full border border-black bg-transparent px-2 font-body text-sm text-black focus:outline-none"
+            >
+              <option value="" disabled hidden className="text-black/60">
+                Select Size
+              </option>
+              <option value="XS">XS</option>
+              <option value="S">S</option>
+              <option value="M">M</option>
+              <option value="L">L</option>
+              <option value="XL">XL</option>
+              <option value="XXL">XXL</option>
+            </select>
+            <input
+              type="text"
+              placeholder="Your Location (e.g. Accra)"
+              value={location}
+              onChange={(event) => setLocation(event.target.value)}
+              required
+              className="h-11 w-full border border-black bg-transparent px-3 font-body text-sm text-black placeholder:text-black/60 focus:outline-none"
+            />
+            <input
               type="email"
-              placeholder="Enter your email address"
+              placeholder="Email Address"
               value={email}
               onChange={(event) => setEmail(event.target.value)}
               required

@@ -6,14 +6,17 @@ const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 const isValidPhone = (phone) => /^[+()\d\s-]{7,20}$/.test(phone);
 
 export const registerWaitlist = async (req, res) => {
+  const name = String(req.body?.name || "").trim();
+  const size = String(req.body?.size || "").trim();
+  const location = String(req.body?.location || "").trim();
   const email = String(req.body?.email || "").trim().toLowerCase();
   const phone = String(req.body?.phone || "").trim();
   const subject = req.body?.subject;
   const text = req.body?.text;
   const html = req.body?.html;
 
-  if (!email || !phone) {
-    return res.status(400).json({ message: "email and phone are required" });
+  if (!email || !phone || !name || !size || !location) {
+    return res.status(400).json({ message: "name, size, location, email, and phone are required" });
   }
   if (!isValidEmail(email)) {
     return res.status(400).json({ message: "invalid email" });
@@ -34,10 +37,13 @@ export const registerWaitlist = async (req, res) => {
     const { authorizationUrl, reference } = await initializePayment({
       email,
       amount,
-      metadata: { phone },
+      metadata: { name, size, location, phone },
     });
 
     await userQueries.insert(
+      name,
+      size,
+      location,
       email,
       phone,
       authorizationUrl,
