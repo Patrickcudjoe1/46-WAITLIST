@@ -33,7 +33,7 @@ const HeroSection = () => {
           <p className="flex items-center justify-center gap-2 font-body text-xs text-zinc-500 md:text-sm">
             <span className="h-2 w-2 rounded-full bg-red-500" />
             <span>
-              <span className="font-extrabold text-zinc-800">Limited slots:</span> only 30 people will be accepted
+              <span className="font-extrabold text-zinc-800">Limited slots:</span> 20 slots only
             </span>
           </p>
         </div>
@@ -55,10 +55,10 @@ const HeroSection = () => {
       <section className="bg-[#f6f6f4] px-6 py-20 md:py-28">
         <div className="mx-auto max-w-md text-center">
           <h2 className="font-display text-3xl font-extrabold normal-case tracking-normal text-black md:text-4xl">
-            46 Jersey Collection
+            46 GOLD COAST JERSEY
           </h2>
           <p className="mt-3 font-body text-[10px] font-medium uppercase tracking-[0.2em] text-black md:text-xs">
-            New drop coming soon, sign up to get notified when we drop 🌸
+            JOIN THE PRE-ORDER WAITLIST
           </p>
 
           <form onSubmit={handleSubmit} className="mx-auto mt-16 w-full max-w-[360px] space-y-3">
