@@ -67,6 +67,15 @@ export const sendWaitlistNotification = async (submission: WaitlistSubmission) =
   });
 
   if (!response.ok) {
-    throw new Error(`Email request failed with status ${response.status}`);
+    let message = `Email request failed with status ${response.status}`;
+    try {
+      const body = (await response.json()) as { error?: string; details?: string };
+      if (body.error) {
+        message = body.details ? `${body.error} (${body.details})` : body.error;
+      }
+    } catch {
+      // Keep default message when response is not JSON.
+    }
+    throw new Error(message);
   }
 };

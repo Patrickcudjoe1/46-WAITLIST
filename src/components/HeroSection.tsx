@@ -7,18 +7,21 @@ const HeroSection = () => {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setStatus("loading");
+    setErrorMessage("");
 
     try {
       await sendWaitlistNotification({ email, phone });
       setStatus("success");
       setEmail("");
       setPhone("");
-    } catch {
+    } catch (error) {
       setStatus("error");
+      setErrorMessage(error instanceof Error ? error.message : "Unable to send right now. Please try again.");
     }
   };
 
@@ -88,7 +91,7 @@ const HeroSection = () => {
           )}
           {status === "error" && (
             <p className="mt-4 text-xs font-medium text-red-600">
-              Unable to send right now. Please try again.
+              {errorMessage || "Unable to send right now. Please try again."}
             </p>
           )}
         </div>

@@ -12,6 +12,17 @@ const json = (body: unknown, status = 200) =>
     headers: { "Content-Type": "application/json" },
   });
 
+const withTimeout = async (input: RequestInfo | URL, init: RequestInit, timeoutMs: number) => {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    return await fetch(input, { ...init, signal: controller.signal });
+  } finally {
+    clearTimeout(timeout);
+  }
+};
+
 export default async function handler(request: Request) {
   if (request.method !== "POST") {
     return json({ error: "Method not allowed" }, 405);
@@ -57,20 +68,32 @@ Mobile Number: ${phone}`;
     body.html?.trim() ||
     `<p>A new user has joined the waitlist.</p><p><strong>Email:</strong> ${email}<br/><strong>Mobile Number:</strong> ${phone}</p>`;
 
-  const resendResponse = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${resendApiKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      from: fromEmail,
-      to: [toEmail],
-      subject,
-      text,
-      html,
-    }),
-  });
+  let resendResponse: Response;
+  try {
+    resendResponse = await withTimeout(
+      "https://api.resend.com/emails",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${resendApiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          from: fromEmail,
+          to: [toEmail],
+          subject,
+          text,
+          html,
+        }),
+      },
+      12000,
+    );
+  } catch (error) {
+    if (error instanceof Error && error.name === "AbortError") {
+      return json({ error: "Email provider timed out. Please try again." }, 504);
+    }
+    return json({ error: "Failed to reach email provider." }, 502);
+  }
 
   if (!resendResponse.ok) {
     const errorText = await resendResponse.text();
