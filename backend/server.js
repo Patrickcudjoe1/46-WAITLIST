@@ -1,6 +1,8 @@
 import "dotenv/config";
 import express from "express";
 import cors from "cors";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import waitlistRoutes from "./routes/waitlistRoutes.js";
 import webhookRoutes from "./routes/webhookRoutes.js";
 
@@ -26,6 +28,22 @@ app.use("/api", webhookRoutes);
 // Regular JSON endpoints
 app.use(express.json({ limit: "100kb" }));
 app.use("/api", waitlistRoutes);
+
+// Static file serving for the frontend
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const distPath = path.join(__dirname, "../dist");
+
+app.use(express.static(distPath));
+
+// Catch-all route for SPA (React Router)
+app.get("*", (req, res) => {
+  // If request contains /api, it's a 404 for the API, not a route for the SPA.
+  if (req.path.startsWith("/api")) {
+    return res.status(404).json({ message: "API endpoint not found" });
+  }
+  res.sendFile(path.join(distPath, "index.html"));
+});
 
 // Global error handler (last)
 // eslint-disable-next-line no-unused-vars
