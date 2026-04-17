@@ -63,12 +63,12 @@ const HeroSection = () => {
           <img
             src={asamoahHero}
             alt="June Forth hero mobile"
-            className="absolute inset-0 h-full w-full object-contain md:hidden"
+            className="absolute inset-0 h-full w-full object-cover md:hidden"
           />
           <img
             src={landscapeHero}
             alt="June Forth hero"
-            className="absolute inset-0 hidden h-full w-full object-contain md:block"
+            className="absolute inset-0 hidden h-full w-full object-cover md:block"
           />
         </div>
       </section>
