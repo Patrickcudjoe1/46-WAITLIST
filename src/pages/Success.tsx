@@ -24,7 +24,7 @@ const Success = () => {
 
     const fetchDetails = async () => {
       try {
-        const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:4000";
+        const backendUrl = import.meta.env.VITE_BACKEND_URL || "";
         const response = await fetch(`${backendUrl}/api/waitlist/${reference}`);
         if (response.ok) {
           const data = await response.json();
