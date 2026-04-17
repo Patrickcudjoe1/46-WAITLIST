@@ -31,6 +31,11 @@ export const registerWaitlist = async (req, res) => {
       return res.status(409).json({ message: "email already registered" });
     }
 
+    const paidCount = await userQueries.countPaid();
+    if (paidCount >= 20) {
+      return res.status(403).json({ message: "Waitlist is completely full! All 20 slots have been claimed." });
+    }
+
     // For a simple waitlist, use a small fixed amount (edit as needed).
     const amount = 1000; // 10.00 GHS in pesewas
 

@@ -48,6 +48,10 @@ export const userQueries = {
     });
     return result.rows[0];
   },
+  countPaid: async () => {
+    const result = await db.execute("SELECT COUNT(*) as count FROM users WHERE paymentStatus = 'paid'");
+    return result.rows[0].count;
+  },
   insert: async (name, size, location, email, phone, paymentLink, paymentReference, paymentStatus, createdAt) => {
     return await db.execute({
       sql: `INSERT INTO users (name, size, location, email, phone, paymentLink, paymentReference, paymentStatus, createdAt)
