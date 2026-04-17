@@ -47,9 +47,9 @@ const HeroSection = () => {
 
   return (
     <>
-      <section className="relative h-screen min-h-[640px] w-full overflow-hidden bg-black">
+      <section className="flex h-screen min-h-[640px] flex-col w-full overflow-hidden bg-black">
         {/* Top shipping strip */}
-        <div className="absolute inset-x-0 top-0 z-30 border-b border-zinc-200 bg-white/95 py-2">
+        <div className="z-30 border-b border-zinc-200 bg-white/95 py-2">
           <p className="flex items-center justify-center gap-2 font-body text-xs text-zinc-500 md:text-sm">
             <span className="h-2 w-2 rounded-full bg-red-500" />
             <span>
@@ -59,17 +59,18 @@ const HeroSection = () => {
         </div>
 
         {/* Hero image */}
-        <img
-          src={asamoahHero}
-          alt="June Forth hero mobile"
-          className="absolute inset-0 h-full w-full object-cover md:hidden"
-        />
-        <img
-          src={landscapeHero}
-          alt="June Forth hero"
-          className="absolute inset-0 hidden h-full w-full object-cover md:block"
-        />
-
+        <div className="relative flex-1">
+          <img
+            src={asamoahHero}
+            alt="June Forth hero mobile"
+            className="absolute inset-0 h-full w-full object-contain md:hidden"
+          />
+          <img
+            src={landscapeHero}
+            alt="June Forth hero"
+            className="absolute inset-0 hidden h-full w-full object-contain md:block"
+          />
+        </div>
       </section>
 
       <section className="bg-[#f6f6f4] px-6 py-20 md:py-28">

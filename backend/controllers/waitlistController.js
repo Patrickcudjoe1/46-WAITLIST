@@ -51,6 +51,7 @@ export const registerWaitlist = async (req, res) => {
       callbackUrl,
     });
 
+    console.log(">>> Attempting DB Insertion for User:", email);
     await userQueries.insert(
       name,
       size,
@@ -63,6 +64,7 @@ export const registerWaitlist = async (req, res) => {
       "pending",
       new Date().toISOString(),
     );
+    console.log(">>> DB Insertion Successful for Reference:", reference);
 
     // Dispatch email notification asynchronously without blocking response
     if (subject && (text || html)) {

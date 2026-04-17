@@ -6,6 +6,8 @@ export const db = createClient({
   authToken: process.env.TURSO_AUTH_TOKEN,
 });
 
+console.log(">>> DB Connection Initialized:", process.env.TURSO_DATABASE_URL ? "TURSO CLOUD" : "LOCAL SQLITE");
+
 // Initialize database
 const initDb = async () => {
   try {
@@ -62,6 +64,7 @@ export const userQueries = {
     });
   },
   markPaid: async (reference) => {
+    console.log(`--- Executing DB Update: markPaid for ${reference}`);
     return await db.execute({
       sql: `UPDATE users SET paymentStatus = 'paid' WHERE paymentReference = ?`,
       args: [reference],
