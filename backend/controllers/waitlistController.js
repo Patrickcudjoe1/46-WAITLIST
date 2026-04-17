@@ -40,10 +40,15 @@ export const registerWaitlist = async (req, res) => {
     // For a simple waitlist, use a small fixed amount (edit as needed).
     const amount = 1000; // 10.00 GHS in pesewas
 
+    // Construct callback URL from frontend origin
+    const frontendOrigin = process.env.FRONTEND_ORIGIN || "http://localhost:5173";
+    const callbackUrl = `${frontendOrigin.replace(/\/$/, "")}/success`;
+    
     const { authorizationUrl, reference } = await initializePayment({
       email,
       amount,
       metadata: { name, size, location, quantity, phone },
+      callbackUrl,
     });
 
     await userQueries.insert(
@@ -73,6 +78,32 @@ export const registerWaitlist = async (req, res) => {
       return res.status(409).json({ message: "email already registered" });
     }
     return res.status(500).json({ message: "failed to register waitlist", details: message });
+  }
+};
+ 
+export const getWaitlistEntry = async (req, res) => {
+  const { reference } = req.params;
+  
+  if (!reference) {
+    return res.status(400).json({ message: "reference is required" });
+  }
+
+  try {
+    const user = await userQueries.findByReference(reference);
+    if (!user) {
+      return res.status(404).json({ message: "registration not found" });
+    }
+
+    return res.status(200).json({
+      name: user.name,
+      size: user.size,
+      quantity: user.quantity,
+      location: user.location,
+      status: user.paymentStatus,
+    });
+  } catch (error) {
+    console.error("Fetch registration error:", error);
+    return res.status(500).json({ message: "failed to fetch registration" });
   }
 };
 

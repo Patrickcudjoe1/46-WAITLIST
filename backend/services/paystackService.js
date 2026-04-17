@@ -6,7 +6,7 @@ const requireEnv = (key) => {
   return value;
 };
 
-export const initializePayment = async ({ email, amount, metadata }) => {
+export const initializePayment = async ({ email, amount, metadata, callbackUrl }) => {
   const secretKey = requireEnv("PAYSTACK_SECRET_KEY");
 
   const response = await fetch(`${PAYSTACK_BASE_URL}/transaction/initialize`, {
@@ -20,6 +20,7 @@ export const initializePayment = async ({ email, amount, metadata }) => {
       amount,
       currency: "GHS",
       metadata,
+      callback_url: callbackUrl,
     }),
   });
 
