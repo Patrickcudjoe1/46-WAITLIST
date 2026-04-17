@@ -43,3 +43,25 @@ export const initializePayment = async ({ email, amount, metadata, callbackUrl }
   };
 };
 
+export const verifyTransaction = async (reference) => {
+  const secretKey = requireEnv("PAYSTACK_SECRET_KEY");
+
+  const response = await fetch(`${PAYSTACK_BASE_URL}/transaction/verify/${reference}`, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${secretKey}`,
+      "Content-Type": "application/json",
+    },
+  });
+
+  const payload = await response.json().catch(() => null);
+
+  if (!response.ok) {
+    const message = payload?.message || `Verification failed with status ${response.status}`;
+    console.error("Paystack verification error:", message);
+    throw new Error(message);
+  }
+
+  return payload.data; // contains status, amount, metadata, etc.
+};
+

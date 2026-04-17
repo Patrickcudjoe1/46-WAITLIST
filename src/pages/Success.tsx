@@ -29,6 +29,22 @@ const Success = () => {
         if (response.ok) {
           const data = await response.json();
           setDetails(data);
+          
+          // Proactively verify status if it's still 'pending'
+          if (data.status === "pending") {
+            const verifyRes = await fetch(`${backendUrl}/api/waitlist/verify/${reference}`, {
+              method: "POST"
+            });
+            if (verifyRes.ok) {
+              const verifyData = await verifyRes.json();
+              if (verifyData.status === "paid") {
+                // Refresh details
+                const updatedRes = await fetch(`${backendUrl}/api/waitlist/${reference}`);
+                const updatedData = await updatedRes.json();
+                setDetails(updatedData);
+              }
+            }
+          }
         }
       } catch (error) {
         console.error("Failed to fetch transaction details:", error);

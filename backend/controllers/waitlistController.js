@@ -1,5 +1,5 @@
 import { userQueries } from "../config/db.js";
-import { initializePayment } from "../services/paystackService.js";
+import { initializePayment, verifyTransaction } from "../services/paystackService.js";
 import { sendEmail } from "../services/emailService.js";
 
 const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -106,6 +106,41 @@ export const getWaitlistEntry = async (req, res) => {
   } catch (error) {
     console.error("Fetch registration error:", error);
     return res.status(500).json({ message: "failed to fetch registration" });
+  }
+};
+
+export const verifyWaitlistPayment = async (req, res) => {
+  const { reference } = req.params;
+
+  if (!reference) {
+    return res.status(400).json({ message: "reference is required" });
+  }
+
+  try {
+    const user = await userQueries.findByReference(reference);
+    if (!user) {
+      return res.status(404).json({ message: "registration not found" });
+    }
+
+    // If already paid, just return success
+    if (user.paymentStatus === "paid") {
+      return res.status(200).json({ status: "paid", message: "already verified" });
+    }
+
+    console.log(`>>> Manually Verifying Payment for reference: ${reference}`);
+    const paystackData = await verifyTransaction(reference);
+
+    if (paystackData.status === "success") {
+      console.log(`>>> Paystack confirmed SUCCESS for ${reference}. Updating DB...`);
+      await userQueries.markPaid(reference);
+      return res.status(200).json({ status: "paid", message: "payment verified and updated" });
+    } else {
+      console.log(`>>> Paystack status for ${reference}: ${paystackData.status}`);
+      return res.status(200).json({ status: paystackData.status, message: "payment not yet successful" });
+    }
+  } catch (error) {
+    console.error("Manual verification error:", error);
+    return res.status(500).json({ message: "failed to verify payment", error: error.message });
   }
 };
 
