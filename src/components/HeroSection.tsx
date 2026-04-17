@@ -6,6 +6,7 @@ import { sendWaitlistNotification } from "@/lib/waitlistEmail";
 const HeroSection = () => {
   const [name, setName] = useState("");
   const [size, setSize] = useState("");
+  const [quantity, setQuantity] = useState("1");
   const [location, setLocation] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -18,7 +19,14 @@ const HeroSection = () => {
     setErrorMessage("");
 
     try {
-      const response = await sendWaitlistNotification({ name, size, location, email, phone });
+      const response = await sendWaitlistNotification({ 
+        name, 
+        size, 
+        location, 
+        quantity: parseInt(quantity, 10), 
+        email, 
+        phone 
+      });
       
       if (response?.paymentLink) {
         window.location.href = response.paymentLink;
@@ -26,6 +34,7 @@ const HeroSection = () => {
         setStatus("success");
         setName("");
         setSize("");
+        setQuantity("1");
         setLocation("");
         setEmail("");
         setPhone("");
@@ -81,25 +90,43 @@ const HeroSection = () => {
               required
               className="h-11 w-full border border-black bg-transparent px-3 font-body text-sm text-black placeholder:text-black/60 focus:outline-none"
             />
-            <select
-              value={size}
-              onChange={(event) => setSize(event.target.value)}
-              required
-              className="appearance-none h-11 w-full border border-black bg-transparent px-3 font-body text-sm text-black focus:outline-none"
-            >
-              <option value="" disabled hidden className="text-black/60">
-                Select Size
-              </option>
-              <option value="XS">XS</option>
-              <option value="S">S</option>
-              <option value="M">M</option>
-              <option value="L">L</option>
-              <option value="XL">XL</option>
-              <option value="XXL">XXL</option>
-            </select>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="relative">
+                <select
+                  value={size}
+                  onChange={(event) => setSize(event.target.value)}
+                  required
+                  className="appearance-none h-11 w-full border border-black bg-transparent px-3 font-body text-sm text-black focus:outline-none"
+                >
+                  <option value="" disabled hidden className="text-black/60">
+                    Select Size
+                  </option>
+                  <option value="XS">XS</option>
+                  <option value="S">S</option>
+                  <option value="M">M</option>
+                  <option value="L">L</option>
+                  <option value="XL">XL</option>
+                  <option value="XXL">XXL</option>
+                </select>
+                <div className="pointer-events-none absolute inset-y-0 right-3 flex items-center">
+                  <svg className="h-4 w-4 fill-current text-black" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                    <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
+                  </svg>
+                </div>
+              </div>
+              <input
+                type="number"
+                min="1"
+                placeholder="Quantity"
+                value={quantity}
+                onChange={(event) => setQuantity(event.target.value)}
+                required
+                className="h-11 w-full border border-black bg-transparent px-3 font-body text-sm text-black placeholder:text-black/60 focus:outline-none"
+              />
+            </div>
             <input
               type="text"
-              placeholder="Your Location (e.g. Accra)"
+              placeholder="Delivery Location (e.g. East Legon)"
               value={location}
               onChange={(event) => setLocation(event.target.value)}
               required

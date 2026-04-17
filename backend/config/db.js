@@ -17,6 +17,7 @@ const initDb = async () => {
         location TEXT NOT NULL,
         email TEXT NOT NULL UNIQUE,
         phone TEXT NOT NULL,
+        quantity INTEGER NOT NULL DEFAULT 1,
         paymentLink TEXT NOT NULL,
         paymentReference TEXT NOT NULL UNIQUE,
         paymentStatus TEXT NOT NULL,
@@ -27,6 +28,7 @@ const initDb = async () => {
     await db.execute(`ALTER TABLE users ADD COLUMN name TEXT DEFAULT '';`).catch(() => {});
     await db.execute(`ALTER TABLE users ADD COLUMN size TEXT DEFAULT '';`).catch(() => {});
     await db.execute(`ALTER TABLE users ADD COLUMN location TEXT DEFAULT '';`).catch(() => {});
+    await db.execute(`ALTER TABLE users ADD COLUMN quantity INTEGER DEFAULT 1;`).catch(() => {});
   } catch (err) {
     console.error("Failed to initialize database schema:", err);
   }
@@ -52,11 +54,11 @@ export const userQueries = {
     const result = await db.execute("SELECT COUNT(*) as count FROM users WHERE paymentStatus = 'paid'");
     return result.rows[0].count;
   },
-  insert: async (name, size, location, email, phone, paymentLink, paymentReference, paymentStatus, createdAt) => {
+  insert: async (name, size, location, quantity, email, phone, paymentLink, paymentReference, paymentStatus, createdAt) => {
     return await db.execute({
-      sql: `INSERT INTO users (name, size, location, email, phone, paymentLink, paymentReference, paymentStatus, createdAt)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      args: [name, size, location, email, phone, paymentLink, paymentReference, paymentStatus, createdAt],
+      sql: `INSERT INTO users (name, size, location, quantity, email, phone, paymentLink, paymentReference, paymentStatus, createdAt)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      args: [name, size, location, quantity, email, phone, paymentLink, paymentReference, paymentStatus, createdAt],
     });
   },
   markPaid: async (reference) => {

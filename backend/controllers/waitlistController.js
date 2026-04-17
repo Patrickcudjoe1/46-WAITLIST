@@ -11,6 +11,7 @@ export const registerWaitlist = async (req, res) => {
   const location = String(req.body?.location || "").trim();
   const email = String(req.body?.email || "").trim().toLowerCase();
   const phone = String(req.body?.phone || "").trim();
+  const quantity = parseInt(req.body?.quantity || "1", 10) || 1;
   const subject = req.body?.subject;
   const text = req.body?.text;
   const html = req.body?.html;
@@ -42,13 +43,14 @@ export const registerWaitlist = async (req, res) => {
     const { authorizationUrl, reference } = await initializePayment({
       email,
       amount,
-      metadata: { name, size, location, phone },
+      metadata: { name, size, location, quantity, phone },
     });
 
     await userQueries.insert(
       name,
       size,
       location,
+      quantity,
       email,
       phone,
       authorizationUrl,

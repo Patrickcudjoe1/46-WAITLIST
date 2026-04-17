@@ -2,6 +2,7 @@ export type WaitlistSubmission = {
   name: string;
   size: string;
   location: string;
+  quantity: number;
   email: string;
   phone: string;
 };
@@ -16,19 +17,21 @@ const escapeHtml = (value: string) =>
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#39;");
 
-export const buildWaitlistEmailText = ({ name, size, location, email, phone }: WaitlistSubmission) =>
+export const buildWaitlistEmailText = ({ name, size, location, quantity, email, phone }: WaitlistSubmission) =>
   `A new user has joined the waitlist.
+ 
+ Name: ${name}
+ Size: ${size}
+ Quantity: ${quantity}
+ Location: ${location}
+ Email: ${email}
+ Mobile Number: ${phone}`;
 
-Name: ${name}
-Size: ${size}
-Location: ${location}
-Email: ${email}
-Mobile Number: ${phone}`;
-
-export const buildWaitlistEmailHtml = ({ name, size, location, email, phone }: WaitlistSubmission) => {
+export const buildWaitlistEmailHtml = ({ name, size, location, quantity, email, phone }: WaitlistSubmission) => {
   const safeName = escapeHtml(name);
   const safeSize = escapeHtml(size);
   const safeLocation = escapeHtml(location);
+  const safeQuantity = String(quantity);
   const safeEmail = escapeHtml(email);
   const safePhone = escapeHtml(phone);
 
@@ -51,6 +54,10 @@ export const buildWaitlistEmailHtml = ({ name, size, location, email, phone }: W
             <tr>
               <td style="padding:10px 12px;border:1px solid #e5e7eb;background:#f9fafb;font-size:13px;font-weight:700;width:180px;">Size</td>
               <td style="padding:10px 12px;border:1px solid #e5e7eb;font-size:13px;">${safeSize}</td>
+            </tr>
+            <tr>
+              <td style="padding:10px 12px;border:1px solid #e5e7eb;background:#f9fafb;font-size:13px;font-weight:700;width:180px;">Quantity</td>
+              <td style="padding:10px 12px;border:1px solid #e5e7eb;font-size:13px;">${safeQuantity}</td>
             </tr>
             <tr>
               <td style="padding:10px 12px;border:1px solid #e5e7eb;background:#f9fafb;font-size:13px;font-weight:700;width:180px;">Location</td>
