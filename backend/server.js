@@ -20,7 +20,7 @@ app.use(
 app.get("/health", (_req, res) => res.json({ ok: true }));
 
 // Webhooks need the raw body for signature verification.
-app.use("/api/paystack-webhook", express.raw({ type: "application/json" }));
+app.use("/api/paystack-webhook", express.raw({ type: "*/*" }));
 app.use("/api", webhookRoutes);
 
 // Regular JSON endpoints
