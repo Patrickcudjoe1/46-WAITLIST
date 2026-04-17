@@ -3,10 +3,29 @@ import express from "express";
 import cors from "cors";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import helmet from "helmet";
+import { rateLimit } from "express-rate-limit";
 import waitlistRoutes from "./routes/waitlistRoutes.js";
 import webhookRoutes from "./routes/webhookRoutes.js";
 
 const app = express();
+
+// Security Headers
+app.use(helmet({
+  contentSecurityPolicy: false, // Disable CSP for simplicity since we're serving the SPA
+  crossOriginEmbedderPolicy: false,
+}));
+
+// Global Rate Limiting (Protects the whole API)
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per `window` 
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { message: "Too many requests, please try again later." }
+});
+
+app.use("/api", limiter);
 
 const port = Number(process.env.PORT || 4000);
 const frontendOrigin = process.env.FRONTEND_ORIGIN;
