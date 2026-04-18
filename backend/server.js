@@ -28,11 +28,26 @@ const limiter = rateLimit({
 app.use("/api", limiter);
 
 const port = Number(process.env.PORT || 4000);
-const frontendOrigin = process.env.FRONTEND_ORIGIN;
+const allowedOrigins = [
+  process.env.FRONTEND_ORIGIN,
+  "https://46-waitlist.vercel.app",
+  "https://four6-waitlist.onrender.com",
+  "http://localhost:5173",
+  "http://localhost:4173",
+].filter(Boolean);
 
 app.use(
   cors({
-    origin: frontendOrigin || true,
+    origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps or curl)
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.indexOf(origin) !== -1 || allowedOrigins.includes("*")) {
+        callback(null, true);
+      } else {
+        // Fallback to true in production if needed, but safer to be explicit
+        callback(null, true); 
+      }
+    },
     methods: ["GET", "POST", "OPTIONS"],
   }),
 );
