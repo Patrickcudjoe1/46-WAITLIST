@@ -19,6 +19,7 @@ const HeroSection = () => {
     setErrorMessage("");
 
     try {
+      console.log(">>> Submitting waitlist form with endpoint:", import.meta.env.VITE_WAITLIST_WEBHOOK_URL || "/api/waitlist");
       const response = await sendWaitlistNotification({ 
         name, 
         size, 
@@ -29,8 +30,10 @@ const HeroSection = () => {
       });
       
       if (response?.paymentLink) {
+        console.log(">>> Success! Redirecting to Paystack:", response.paymentLink);
         window.location.href = response.paymentLink;
       } else {
+        console.log(">>> Success! Status:", status);
         setStatus("success");
         setName("");
         setSize("");
@@ -40,6 +43,7 @@ const HeroSection = () => {
         setPhone("");
       }
     } catch (error) {
+      console.error(">>> Waitlist submission failed:", error);
       setStatus("error");
       setErrorMessage(error instanceof Error ? error.message : "Unable to send right now. Please try again.");
     }
