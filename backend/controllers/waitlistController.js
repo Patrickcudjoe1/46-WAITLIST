@@ -37,8 +37,8 @@ export const registerWaitlist = async (req, res) => {
       return res.status(403).json({ message: "Waitlist is completely full! All 20 slots have been claimed." });
     }
 
-    // For a simple waitlist, use a small fixed amount (edit as needed).
-    const amount = 1000; // 10.00 GHS in pesewas
+    // Pre-order amount: 450 GHS
+    const amount = 45000; // 450.00 GHS in pesewas
 
     // Construct callback URL from frontend origin
     const frontendOrigin = process.env.FRONTEND_ORIGIN || "http://localhost:5173";
