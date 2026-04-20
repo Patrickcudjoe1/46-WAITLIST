@@ -1,4 +1,4 @@
-import { FormEvent, useState } from "react";
+import { FormEvent, useState, useEffect } from "react";
 import landscapeHero from "@/assets/landscape hero.jpeg";
 import asamoahHero from "@/assets/asamoah.jpeg";
 import { sendWaitlistNotification } from "@/lib/waitlistEmail";
@@ -12,6 +12,21 @@ const HeroSection = () => {
   const [phone, setPhone] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState("");
+  const [isBackendReady, setIsBackendReady] = useState(false);
+
+  useEffect(() => {
+    const checkConnection = async () => {
+      const backendUrl = import.meta.env.VITE_BACKEND_URL || "https://four6-waitlist.onrender.com";
+      try {
+        const res = await fetch(`${backendUrl.replace(/\/$/, "")}/health`);
+        if (res.ok) setIsBackendReady(true);
+      } catch (err) {
+        // Keep trying every 3 seconds if not ready
+        setTimeout(checkConnection, 3000);
+      }
+    };
+    checkConnection();
+  }, []);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -163,10 +178,10 @@ const HeroSection = () => {
             />
             <button
               type="submit"
-              disabled={status === "loading"}
-              className="h-12 w-full rounded-md bg-black font-body text-sm font-semibold text-white transition hover:bg-black/90"
+              disabled={status === "loading" || !isBackendReady}
+              className="h-12 w-full rounded-md bg-black font-body text-sm font-semibold text-white transition hover:bg-black/90 disabled:bg-zinc-400 disabled:cursor-not-allowed"
             >
-              {status === "loading" ? "Submitting..." : "Sign up"}
+              {!isBackendReady ? "Connecting..." : status === "loading" ? "Submitting..." : "Sign up"}
             </button>
           </form>
           {status === "success" && (
