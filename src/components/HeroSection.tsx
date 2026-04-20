@@ -45,7 +45,15 @@ const HeroSection = () => {
     } catch (error) {
       console.error(">>> Waitlist submission failed:", error);
       setStatus("error");
-      setErrorMessage(error instanceof Error ? error.message : "Unable to send right now. Please try again.");
+      
+      const isNetworkError = error instanceof Error && 
+        (error.message.includes("fetch") || error.message.includes("Load failed") || error.message.includes("NetworkError"));
+      
+      const message = isNetworkError 
+        ? "The server is currently waking up. Please wait about 10 seconds and try again—your spots are still available!"
+        : (error instanceof Error ? error.message : "Unable to send right now. Please try again.");
+        
+      setErrorMessage(message);
     }
   };
 
