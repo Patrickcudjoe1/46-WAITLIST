@@ -28,8 +28,8 @@ export const registerWaitlist = async (req, res) => {
 
   try {
     const existing = await userQueries.findByEmail(email);
-    if (existing) {
-      return res.status(409).json({ message: "email already registered" });
+    if (existing && existing.paymentStatus === "paid") {
+      return res.status(409).json({ message: "email already registered and paid" });
     }
 
     const paidCount = await userQueries.countPaid();
@@ -52,20 +52,36 @@ export const registerWaitlist = async (req, res) => {
       callbackUrl,
     });
 
-    console.log(">>> Attempting DB Insertion for User:", email);
-    await userQueries.insert(
-      name,
-      size,
-      location,
-      quantity,
-      email,
-      phone,
-      authorizationUrl,
-      reference,
-      "pending",
-      new Date().toISOString(),
-    );
-    console.log(">>> DB Insertion Successful for Reference:", reference);
+    if (existing && existing.paymentStatus === "pending") {
+      console.log(">>> Retrying Registration for Existing Pending User:", email);
+      await userQueries.updatePendingUser(
+        name,
+        size,
+        location,
+        quantity,
+        email,
+        phone,
+        authorizationUrl,
+        reference,
+        new Date().toISOString(),
+      );
+      console.log(">>> DB Update Successful for Existing User. Reference:", reference);
+    } else {
+      console.log(">>> Attempting DB Insertion for New User:", email);
+      await userQueries.insert(
+        name,
+        size,
+        location,
+        quantity,
+        email,
+        phone,
+        authorizationUrl,
+        reference,
+        "pending",
+        new Date().toISOString(),
+      );
+      console.log(">>> DB Insertion Successful for Reference:", reference);
+    }
 
     // Dispatch email notification asynchronously without blocking response
     if (subject && (text || html)) {
@@ -142,6 +158,75 @@ export const verifyWaitlistPayment = async (req, res) => {
   } catch (error) {
     console.error("Manual verification error:", error);
     return res.status(500).json({ message: "failed to verify payment", error: error.message });
+  }
+};
+
+export const getAllRegistrations = async (_req, res) => {
+  try {
+    const users = await userQueries.findAll();
+    return res.status(200).json(users);
+  } catch (error) {
+    console.error("Fetch all registrations error:", error);
+    return res.status(500).json({ message: "failed to fetch registrations" });
+  }
+};
+
+export const refreshPaymentSession = async (req, res) => {
+  const { reference } = req.params;
+
+  if (!reference) {
+    return res.status(400).json({ message: "reference is required" });
+  }
+
+  try {
+    const user = await userQueries.findByReference(reference);
+    if (!user) {
+      return res.status(404).json({ message: "registration not found" });
+    }
+
+    if (user.paymentStatus === "paid") {
+      return res.status(400).json({ message: "payment already completed", status: "paid" });
+    }
+
+    console.log(`>>> Refreshing Payment Session for Reference: ${reference}`);
+
+    // Pre-order amount: 450 GHS per item
+    const unitPrice = 45000;
+    const amount = unitPrice * user.quantity;
+
+    const frontendOrigin = process.env.FRONTEND_ORIGIN || "http://localhost:5173";
+    const callbackUrl = `${frontendOrigin.replace(/\/$/, "")}/success`;
+
+    const { authorizationUrl, reference: newReference } = await initializePayment({
+      email: user.email,
+      amount,
+      metadata: { 
+        name: user.name, 
+        size: user.size, 
+        location: user.location, 
+        quantity: user.quantity, 
+        phone: user.phone 
+      },
+      callbackUrl,
+    });
+
+    // Update existing user with new reference and link
+    await userQueries.updatePendingUser(
+      user.name,
+      user.size,
+      user.location,
+      user.quantity,
+      user.email,
+      user.phone,
+      authorizationUrl,
+      newReference,
+      new Date().toISOString()
+    );
+
+    return res.status(200).json({ paymentLink: authorizationUrl });
+  } catch (error) {
+    console.error("Refresh payment session error:", error);
+    return res.status(500).json({ message: "failed to refresh payment link" });
   }
 };
 

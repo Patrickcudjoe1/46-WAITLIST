@@ -6,6 +6,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import Index from "./pages/Index.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import Success from "./pages/Success.tsx";
+import AdminWaitlist from "./pages/AdminWaitlist.tsx";
+import Checkout from "./pages/Checkout.tsx";
 
 const queryClient = new QueryClient();
 
@@ -18,6 +20,8 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/success" element={<Success />} />
+          <Route path="/admin-waitlist" element={<AdminWaitlist />} />
+          <Route path="/checkout/:reference" element={<Checkout />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

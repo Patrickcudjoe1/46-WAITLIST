@@ -70,5 +70,18 @@ export const userQueries = {
       args: [reference],
     });
   },
+  updatePendingUser: async (name, size, location, quantity, email, phone, paymentLink, paymentReference, createdAt) => {
+    console.log(`--- Executing DB Update: updatePendingUser for ${email}`);
+    return await db.execute({
+      sql: `UPDATE users 
+            SET name = ?, size = ?, location = ?, quantity = ?, phone = ?, paymentLink = ?, paymentReference = ?, createdAt = ?
+            WHERE email = ? AND paymentStatus = 'pending'`,
+      args: [name, size, location, quantity, phone, paymentLink, paymentReference, createdAt, email],
+    });
+  },
+  findAll: async () => {
+    const result = await db.execute("SELECT * FROM users ORDER BY createdAt DESC");
+    return result.rows;
+  },
 };
 
