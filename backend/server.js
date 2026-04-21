@@ -10,6 +10,9 @@ import webhookRoutes from "./routes/webhookRoutes.js";
 
 const app = express();
 
+// Trust proxy for rate limiting behind Render/Load Balancer
+app.set("trust proxy", 1);
+
 // Security Headers
 app.use(helmet({
   contentSecurityPolicy: false, // Disable CSP for simplicity since we're serving the SPA
