@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { Copy, Check, ExternalLink, Package, User, Mail, MapPin, Hash, RefreshCcw, Loader2 } from "lucide-react";
+import { Copy, Check, ExternalLink, Package, User, Mail, MapPin, Hash, RefreshCcw, Loader2, Send } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 interface WaitlistEntry {
   id: number;
@@ -18,6 +19,8 @@ const AdminWaitlist = () => {
   const [entries, setEntries] = useState<WaitlistEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [copiedRef, setCopiedRef] = useState<string | null>(null);
+  const [emailingRef, setEmailingRef] = useState<string | null>(null);
+  const { toast } = useToast();
 
   const fetchEntries = async () => {
     setLoading(true);
@@ -45,6 +48,33 @@ const AdminWaitlist = () => {
     navigator.clipboard.writeText(link);
     setCopiedRef(ref);
     setTimeout(() => setCopiedRef(null), 2000);
+  };
+
+  const sendEmail = async (ref: string) => {
+    setEmailingRef(ref);
+    try {
+      const backendUrl = import.meta.env.VITE_BACKEND_URL || "";
+      const response = await fetch(`${backendUrl}/api/waitlist/send-recovery/${ref}`, {
+        method: "POST"
+      });
+      
+      if (response.ok) {
+        toast({
+          title: "Email Sent",
+          description: "Recovery link has been sent to the customer.",
+        });
+      } else {
+        throw new Error("Failed to send email");
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Could not send recovery email. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setEmailingRef(null);
+    }
   };
 
   const getStatusColor = (status: string) => {
@@ -123,22 +153,37 @@ const AdminWaitlist = () => {
                       </td>
                       <td className="p-6 text-right">
                         {entry.paymentStatus.toLowerCase() === 'pending' ? (
-                          <button
-                            onClick={() => copyLink(entry.paymentReference)}
-                            className="inline-flex items-center gap-2 bg-black text-white px-4 py-2 rounded-lg font-body text-[10px] font-bold uppercase tracking-widest hover:bg-zinc-800 transition-all active:scale-95"
-                          >
-                            {copiedRef === entry.paymentReference ? (
-                              <>
-                                <Check className="h-3.5 w-3.5" />
-                                Copied
-                              </>
-                            ) : (
-                              <>
-                                <Copy className="h-3.5 w-3.5" />
-                                Copy Link
-                              </>
-                            )}
-                          </button>
+                          <div className="flex justify-end gap-2">
+                            <button
+                              onClick={() => sendEmail(entry.paymentReference)}
+                              disabled={emailingRef !== null}
+                              className="inline-flex items-center gap-2 bg-zinc-100 text-black px-4 py-2 rounded-lg font-body text-[10px] font-bold uppercase tracking-widest hover:bg-zinc-200 transition-all active:scale-95 disabled:opacity-50"
+                              title="Send Recovery Email"
+                            >
+                              {emailingRef === entry.paymentReference ? (
+                                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                              ) : (
+                                <Send className="h-3.5 w-3.5" />
+                              )}
+                              {emailingRef === entry.paymentReference ? "Sending..." : "Email Link"}
+                            </button>
+                            <button
+                              onClick={() => copyLink(entry.paymentReference)}
+                              className="inline-flex items-center gap-2 bg-black text-white px-4 py-2 rounded-lg font-body text-[10px] font-bold uppercase tracking-widest hover:bg-zinc-800 transition-all active:scale-95"
+                            >
+                              {copiedRef === entry.paymentReference ? (
+                                <>
+                                  <Check className="h-3.5 w-3.5" />
+                                  Copied
+                                </>
+                              ) : (
+                                <>
+                                  <Copy className="h-3.5 w-3.5" />
+                                  Copy Link
+                                </>
+                              )}
+                            </button>
+                          </div>
                         ) : (
                           <span className="font-body text-[10px] font-bold text-green-500 uppercase tracking-widest">
                             Fulfilled
