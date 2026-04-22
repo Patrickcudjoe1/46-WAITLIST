@@ -303,3 +303,78 @@ export const sendRecoveryEmail = async (req, res) => {
   }
 };
 
+export const sendFollowUpEmail = async (req, res) => {
+  const { reference } = req.params;
+
+  if (!reference) {
+    return res.status(400).json({ message: "reference is required" });
+  }
+
+  try {
+    const user = await userQueries.findByReference(reference);
+    if (!user) {
+      return res.status(404).json({ message: "registration not found" });
+    }
+
+    if (user.paymentStatus === "paid") {
+      return res.status(400).json({ message: "payment already completed", status: "paid" });
+    }
+
+    const frontendOrigin = process.env.FRONTEND_ORIGIN || "https://46-waitlist.vercel.app";
+    const recoveryLink = `${frontendOrigin.replace(/\/$/, "")}/checkout/${reference}`;
+
+    const html = `
+    <div style="background-color:#f6f6f4;padding:40px 20px;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;color:#111111;">
+      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:600px;margin:0 auto;background-color:#ffffff;border:1px solid #e5e7eb;border-radius:16px;overflow:hidden;box-shadow:0 4px 6px -1px rgba(0,0,0,0.1);">
+        <tr>
+          <td style="padding:40px 40px 20px;text-align:center;">
+            <h1 style="margin:0;font-size:24px;font-weight:800;letter-spacing:-0.02em;text-transform:uppercase;">46 GOLD COAST</h1>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:0 40px 40px;">
+            <p style="font-size:16px;line-height:1.6;margin-bottom:24px;">Hello ${user.name},</p>
+            <p style="font-size:16px;line-height:1.6;margin-bottom:24px;color:#374151;">This is a follow-up regarding your pre-order for the <strong>46 Gold Coast Jersey</strong>.</p>
+            <p style="font-size:18px;line-height:1.6;margin-bottom:32px;color:#000000;font-weight:bold;text-align:center;text-transform:uppercase;letter-spacing:0.05em;">Payment Validates Order</p>
+            <p style="font-size:15px;line-height:1.6;margin-bottom:32px;color:#4b5563;">Please note that your reservation is only confirmed once payment is received. Slots are extremely limited and we cannot guarantee availability until you finish the checkout.</p>
+            
+            <div style="background-color:#f9fafb;border-radius:12px;padding:24px;margin-bottom:32px;border:1px solid #f3f4f6;">
+              <h3 style="margin:0 0 16px;font-size:12px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:0.1em;">Reserved for you</h3>
+              <p style="margin:0 0 8px;font-size:14px;font-weight:600;">46 Gold Coast Jersey</p>
+              <p style="margin:0;font-size:13px;color:#6b7280;">Size: ${user.size} / Quantity: ${user.quantity}</p>
+            </div>
+
+            <div style="text-align:center;margin-bottom:32px;">
+              <a href="${recoveryLink}" style="display:inline-block;background-color:#000000;color:#ffffff;padding:18px 32px;font-size:14px;font-weight:700;text-decoration:none;border-radius:8px;text-transform:uppercase;letter-spacing:0.1em;">Secure My Spot Now</a>
+            </div>
+
+            <p style="font-size:14px;line-height:1.6;color:#e11d48;text-align:center;font-weight:bold;margin:0;">Final reminder: Payment must be completed to confirm.</p>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color:#f9fafb;padding:24px;text-align:center;border-top:1px solid #e5e7eb;">
+            <p style="margin:0;font-size:12px;color:#9ca3af;text-transform:uppercase;letter-spacing:0.1em;">&copy; 2026 46 GOLD COAST</p>
+          </td>
+        </tr>
+      </table>
+    </div>
+    `;
+
+    const success = await sendEmail({
+      to: user.email,
+      subject: "ACTION REQUIRED: Payment validates your 46 Gold Coast order",
+      text: `Hello ${user.name}, this is a follow-up for your 46 Gold Coast Jersey. Payment validates order. Complete it here: ${recoveryLink}`,
+      html
+    });
+
+    if (success) {
+      return res.status(200).json({ message: "follow-up email sent successfully" });
+    } else {
+      return res.status(500).json({ message: "failed to send email" });
+    }
+  } catch (error) {
+    console.error("Send follow-up email error:", error);
+    return res.status(500).json({ message: "failed to process follow-up email" });
+  }
+};
+

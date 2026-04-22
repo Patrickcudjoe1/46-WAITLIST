@@ -20,6 +20,7 @@ const AdminWaitlist = () => {
   const [loading, setLoading] = useState(true);
   const [copiedRef, setCopiedRef] = useState<string | null>(null);
   const [emailingRef, setEmailingRef] = useState<string | null>(null);
+  const [emailingFollowupRef, setEmailingFollowupRef] = useState<string | null>(null);
   const { toast } = useToast();
 
   const fetchEntries = async () => {
@@ -74,6 +75,33 @@ const AdminWaitlist = () => {
       });
     } finally {
       setEmailingRef(null);
+    }
+  };
+
+  const sendFollowupEmail = async (ref: string) => {
+    setEmailingFollowupRef(ref);
+    try {
+      const backendUrl = import.meta.env.VITE_BACKEND_URL || "";
+      const response = await fetch(`${backendUrl}/api/waitlist/send-followup/${ref}`, {
+        method: "POST"
+      });
+      
+      if (response.ok) {
+        toast({
+          title: "Follow-up Sent",
+          description: "Follow-up email with 'Payment validates order' has been sent.",
+        });
+      } else {
+        throw new Error("Failed to send follow-up");
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Could not send follow-up email. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setEmailingFollowupRef(null);
     }
   };
 
@@ -188,6 +216,19 @@ const AdminWaitlist = () => {
                                 <Send className="h-3.5 w-3.5" />
                               )}
                               {emailingRef === entry.paymentReference ? "Sending..." : "Email Link"}
+                            </button>
+                            <button
+                              onClick={() => sendFollowupEmail(entry.paymentReference)}
+                              disabled={emailingFollowupRef !== null || emailingRef !== null}
+                              className="inline-flex items-center gap-2 bg-zinc-100 text-black px-4 py-2 rounded-lg font-body text-[10px] font-bold uppercase tracking-widest hover:bg-zinc-200 transition-all active:scale-95 disabled:opacity-50"
+                              title="Send Follow-up Email"
+                            >
+                              {emailingFollowupRef === entry.paymentReference ? (
+                                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                              ) : (
+                                <Send className="h-3.5 w-3.5" />
+                              )}
+                              {emailingFollowupRef === entry.paymentReference ? "Sending..." : "Follow-up"}
                             </button>
                             <button
                               onClick={() => copyLink(entry.paymentReference)}

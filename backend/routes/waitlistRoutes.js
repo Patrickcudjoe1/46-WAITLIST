@@ -5,7 +5,8 @@ import {
   verifyWaitlistPayment, 
   getAllRegistrations, 
   refreshPaymentSession,
-  sendRecoveryEmail
+  sendRecoveryEmail,
+  sendFollowUpEmail
 } from "../controllers/waitlistController.js";
 
 const router = Router();
@@ -16,6 +17,7 @@ router.get("/waitlist/:reference", getWaitlistEntry);
 router.post("/waitlist/verify/:reference", verifyWaitlistPayment);
 router.post("/waitlist/refresh/:reference", refreshPaymentSession);
 router.post("/waitlist/send-recovery/:reference", sendRecoveryEmail);
+router.post("/waitlist/send-followup/:reference", sendFollowUpEmail);
 
 export default router;
 
