@@ -108,8 +108,11 @@ const HeroSection = () => {
           <p className="mt-3 font-body text-[10px] font-medium uppercase tracking-[0.2em] text-black md:text-xs">
             JOIN THE PRE-ORDER WAITLIST
           </p>
+          <p className="mt-4 font-display text-2xl font-black text-black md:text-3xl italic">
+            450 GHS
+          </p>
 
-          <form onSubmit={handleSubmit} className="mx-auto mt-16 w-full max-w-[360px] space-y-3">
+          <form onSubmit={handleSubmit} className="mx-auto mt-8 w-full max-w-[360px] space-y-3">
             <input
               type="text"
               placeholder="Full Name"
