@@ -80,7 +80,7 @@ const HeroSection = () => {
           <p className="flex items-center justify-center gap-2 font-body text-xs text-zinc-500 md:text-sm">
             <span className="h-2 w-2 rounded-full bg-red-500" />
             <span>
-              <span className="font-extrabold text-zinc-800">Limited slots:</span> 20 slots only
+              <span className="font-extrabold text-zinc-800">Limited slots:</span> 5 slots only
             </span>
           </p>
         </div>
