@@ -85,13 +85,19 @@ const AdminWaitlist = () => {
     }
   };
 
+  const stats = {
+    total: entries.length,
+    paid: entries.filter(e => e.paymentStatus.toLowerCase() === 'paid').length,
+    pending: entries.filter(e => e.paymentStatus.toLowerCase() === 'pending').length
+  };
+
   return (
     <div className="min-h-screen bg-[#f6f6f4] py-12 px-6">
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
           <div className="space-y-2">
             <h1 className="font-display text-4xl font-extrabold text-black tracking-tight">WAITLIST ADMIN</h1>
-            <p className="font-body text-xs text-zinc-400 uppercase tracking-widest">Managing {entries.length} Registrations</p>
+            <p className="font-body text-xs text-zinc-400 uppercase tracking-widest">Dashboard Overview</p>
           </div>
           <button 
             onClick={fetchEntries}
@@ -100,6 +106,22 @@ const AdminWaitlist = () => {
             <RefreshCcw className={`h-3 w-3 ${loading ? 'animate-spin' : ''}`} />
             Refresh Data
           </button>
+        </div>
+
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+          <div className="bg-white p-8 rounded-3xl border border-zinc-200 shadow-sm">
+            <p className="font-body text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-2">Total Registrations</p>
+            <p className="font-display text-4xl font-black text-black">{stats.total}</p>
+          </div>
+          <div className="bg-white p-8 rounded-3xl border border-zinc-200 shadow-sm">
+            <p className="font-body text-[10px] font-bold text-green-500 uppercase tracking-widest mb-2">Paid & Confirmed</p>
+            <p className="font-display text-4xl font-black text-black">{stats.paid}</p>
+          </div>
+          <div className="bg-white p-8 rounded-3xl border border-zinc-200 shadow-sm">
+            <p className="font-body text-[10px] font-bold text-amber-500 uppercase tracking-widest mb-2">Pending Payment</p>
+            <p className="font-display text-4xl font-black text-black">{stats.pending}</p>
+          </div>
         </div>
 
         {loading && entries.length === 0 ? (
