@@ -34,7 +34,7 @@ export const registerWaitlist = async (req, res) => {
 
     const paidCount = await userQueries.countPaid();
     if (paidCount >= 20) {
-      return res.status(403).json({ message: "Waitlist is completely full! All 5 slots have been claimed." });
+      return res.status(403).json({ message: "Waitlist is completely full! All 5 available slots have been claimed." });
     }
 
     // Pre-order amount: 450 GHS per item
@@ -261,7 +261,7 @@ export const sendRecoveryEmail = async (req, res) => {
         <tr>
           <td style="padding:0 40px 40px;">
             <p style="font-size:16px;line-height:1.6;margin-bottom:24px;">Hello ${user.name},</p>
-            <p style="font-size:16px;line-height:1.6;margin-bottom:32px;color:#374151;">We noticed you started a pre-order for the <strong>46 Gold Coast Jersey</strong> but didn't quite finish. We've reserved your spot, but slots are filling up fast (only 5 total).</p>
+            <p style="font-size:16px;line-height:1.6;margin-bottom:32px;color:#374151;">We noticed you started a pre-order for the <strong>46 Gold Coast Jersey</strong> but didn't quite finish. We've reserved your spot, but slots are filling up fast (only 5 slots left).</p>
             
             <div style="background-color:#f9fafb;border-radius:12px;padding:24px;margin-bottom:32px;border:1px solid #f3f4f6;">
               <h3 style="margin:0 0 16px;font-size:12px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:0.1em;">Order Summary</h3>

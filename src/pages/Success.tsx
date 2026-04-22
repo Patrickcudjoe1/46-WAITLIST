@@ -147,7 +147,7 @@ const Success = () => {
           
           <div className="pt-8 border-t border-zinc-200 w-full text-center">
             <p className="font-body text-[9px] font-medium uppercase tracking-[0.2em] text-zinc-400">
-              5 SLOTS ONLY - PRE-ORDER SECURED
+              5 SLOTS LEFT - PRE-ORDER SECURED
             </p>
           </div>
         </div>
