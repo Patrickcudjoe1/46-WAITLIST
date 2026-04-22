@@ -335,7 +335,6 @@ export const sendFollowUpEmail = async (req, res) => {
           <td style="padding:0 40px 40px;">
             <p style="font-size:16px;line-height:1.6;margin-bottom:24px;">Hello ${user.name},</p>
             <p style="font-size:16px;line-height:1.6;margin-bottom:24px;color:#374151;">This is a follow-up regarding your pre-order for the <strong>46 Gold Coast Jersey</strong>.</p>
-            <p style="font-size:18px;line-height:1.6;margin-bottom:32px;color:#000000;font-weight:bold;text-align:center;text-transform:uppercase;letter-spacing:0.05em;">Payment Validates Order</p>
             <p style="font-size:15px;line-height:1.6;margin-bottom:32px;color:#4b5563;">Please note that your reservation is only confirmed once payment is received. Slots are extremely limited and we cannot guarantee availability until you finish the checkout.</p>
             
             <div style="background-color:#f9fafb;border-radius:12px;padding:24px;margin-bottom:32px;border:1px solid #f3f4f6;">
@@ -348,7 +347,7 @@ export const sendFollowUpEmail = async (req, res) => {
               <a href="${recoveryLink}" style="display:inline-block;background-color:#000000;color:#ffffff;padding:18px 32px;font-size:14px;font-weight:700;text-decoration:none;border-radius:8px;text-transform:uppercase;letter-spacing:0.1em;">Secure My Spot Now</a>
             </div>
 
-            <p style="font-size:14px;line-height:1.6;color:#e11d48;text-align:center;font-weight:bold;margin:0;">Final reminder: Payment must be completed to confirm.</p>
+            <p style="font-size:14px;line-height:1.6;color:#e11d48;text-align:center;font-weight:bold;margin:0;text-transform:uppercase;letter-spacing:0.05em;">Payment Validates Pre-Order</p>
           </td>
         </tr>
         <tr>
