@@ -377,3 +377,122 @@ export const sendFollowUpEmail = async (req, res) => {
   }
 };
 
+export const sendProductionUpdateBroadcast = async (req, res) => {
+  console.log(">>> Initiating Production Update Broadcast...");
+  try {
+    const users = await userQueries.findAll();
+    let sentCount = 0;
+    let errorCount = 0;
+
+    const frontendOrigin = process.env.FRONTEND_ORIGIN || "https://46-waitlist.vercel.app";
+
+    // We process sequentially to avoid overwhelming SMTP
+    for (const user of users) {
+      const isPaid = user.paymentStatus === 'paid';
+      const checkoutLink = `${frontendOrigin.replace(/\/$/, "")}/checkout/${user.paymentReference}`;
+      let subject, html;
+
+      if (isPaid) {
+        subject = "Production Update: 46 Gold Coast Jersey";
+        html = `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #111;">
+            <h2 style="border-bottom: 2px solid #000; padding-bottom: 10px;">46 GOLD COAST</h2>
+            <p>Hello ${user.name},</p>
+            <p>We are excited to inform you that <strong>production for your 46 Gold Coast Jersey begins this Tuesday!</strong></p>
+            <p>Since your payment has been confirmed, your order is officially in the production queue. We are committed to delivering the premium quality you expect from us.</p>
+            <p>Thank you for your support and patience.</p>
+            <p>Best regards,<br>The 46 Team</p>
+          </div>
+        `;
+      } else {
+        subject = "Action Required: Secure Your 46 Gold Coast Jersey";
+        html = `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #111;">
+            <h2 style="border-bottom: 2px solid #000; padding-bottom: 10px;">46 GOLD COAST</h2>
+            <p>Hello ${user.name},</p>
+            <p>We wanted to give you a quick update: <strong>Production for the 46 Gold Coast Jersey begins this Tuesday</strong> for all customers who have completed their payments.</p>
+            <p>Our records show that your payment is still pending. To ensure you don't miss out on this drop, please complete your payment as soon as possible.</p>
+            <p><strong>Struggling to make payment?</strong><br>
+            If you are encountering any issues or need assistance with the payment process, please reply directly to this email or send us a DM on our Instagram page (@four6_brand). We are here to help you secure your slot!</p>
+            <p>You can complete your payment here: <a href="${checkoutLink}" style="color: #000; font-weight: bold;">Complete Payment</a></p>
+            <p>Best regards,<br>The 46 Team</p>
+          </div>
+        `;
+      }
+
+      const success = await sendEmail({ to: user.email, subject, html });
+      if (success) sentCount++;
+      else errorCount++;
+    }
+
+    console.log(`>>> Broadcast Completed. Sent: ${sentCount}, Errors: ${errorCount}`);
+    return res.status(200).json({ 
+      message: "Broadcast completed", 
+      sentCount, 
+      errorCount,
+      total: users.length 
+    });
+  } catch (error) {
+    console.error("Broadcast error:", error);
+    return res.status(500).json({ message: "Broadcast failed", details: error.message });
+  }
+};
+
+export const sendSingleProductionUpdate = async (req, res) => {
+  const { reference } = req.params;
+
+  if (!reference) {
+    return res.status(400).json({ message: "reference is required" });
+  }
+
+  try {
+    const user = await userQueries.findByReference(reference);
+    if (!user) {
+      return res.status(404).json({ message: "registration not found" });
+    }
+
+    const isPaid = user.paymentStatus === 'paid';
+    const frontendOrigin = process.env.FRONTEND_ORIGIN || "https://46-waitlist.vercel.app";
+    const checkoutLink = `${frontendOrigin.replace(/\/$/, "")}/checkout/${user.paymentReference}`;
+    let subject, html;
+
+    if (isPaid) {
+      subject = "Production Update: 46 Gold Coast Jersey";
+      html = `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #111;">
+          <h2 style="border-bottom: 2px solid #000; padding-bottom: 10px;">46 GOLD COAST</h2>
+          <p>Hello ${user.name},</p>
+          <p>We are excited to inform you that <strong>production for your 46 Gold Coast Jersey begins this Tuesday!</strong></p>
+          <p>Since your payment has been confirmed, your order is officially in the production queue. We are committed to delivering the premium quality you expect from us.</p>
+          <p>Thank you for your support and patience.</p>
+          <p>Best regards,<br>The 46 Team</p>
+        </div>
+      `;
+    } else {
+      subject = "Action Required: Secure Your 46 Gold Coast Jersey";
+      html = `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #111;">
+          <h2 style="border-bottom: 2px solid #000; padding-bottom: 10px;">46 GOLD COAST</h2>
+          <p>Hello ${user.name},</p>
+          <p>We wanted to give you a quick update: <strong>Production for the 46 Gold Coast Jersey begins this Tuesday</strong> for all customers who have completed their payments.</p>
+          <p>Our records show that your payment is still pending. To ensure you don't miss out on this drop, please complete your payment as soon as possible.</p>
+          <p><strong>Struggling to make payment?</strong><br>
+          If you are encountering any issues or need assistance with the payment process, please reply directly to this email or send us a DM on our Instagram page (@four6_brand). We are here to help you secure your slot!</p>
+          <p>You can complete your payment here: <a href="${checkoutLink}" style="color: #000; font-weight: bold;">Complete Payment</a></p>
+          <p>Best regards,<br>The 46 Team</p>
+        </div>
+      `;
+    }
+
+    const success = await sendEmail({ to: user.email, subject, html });
+    if (success) {
+      return res.status(200).json({ message: "Production update sent successfully" });
+    } else {
+      return res.status(500).json({ message: "Failed to send production update" });
+    }
+  } catch (error) {
+    console.error("Single production update error:", error);
+    return res.status(500).json({ message: "Failed to process production update", details: error.message });
+  }
+};
+

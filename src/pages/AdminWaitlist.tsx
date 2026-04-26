@@ -21,6 +21,8 @@ const AdminWaitlist = () => {
   const [copiedRef, setCopiedRef] = useState<string | null>(null);
   const [emailingRef, setEmailingRef] = useState<string | null>(null);
   const [emailingFollowupRef, setEmailingFollowupRef] = useState<string | null>(null);
+  const [emailingProdUpdateRef, setEmailingProdUpdateRef] = useState<string | null>(null);
+  const [isBroadcasting, setIsBroadcasting] = useState(false);
   const { toast } = useToast();
 
   const fetchEntries = async () => {
@@ -105,6 +107,65 @@ const AdminWaitlist = () => {
     }
   };
 
+  const sendSingleProductionUpdateEmail = async (ref: string) => {
+    setEmailingProdUpdateRef(ref);
+    try {
+      const backendUrl = import.meta.env.VITE_BACKEND_URL || "";
+      const response = await fetch(`${backendUrl}/api/waitlist/send-production-update/${ref}`, {
+        method: "POST"
+      });
+      
+      if (response.ok) {
+        toast({
+          title: "Update Sent",
+          description: "Production update email has been sent to the customer.",
+        });
+      } else {
+        throw new Error("Failed to send update");
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Could not send production update. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setEmailingProdUpdateRef(null);
+    }
+  };
+
+  const broadcastProductionUpdate = async () => {
+    if (!window.confirm("Are you sure you want to send the production update email to ALL users (Paid and Pending)?")) {
+      return;
+    }
+
+    setIsBroadcasting(true);
+    try {
+      const backendUrl = import.meta.env.VITE_BACKEND_URL || "";
+      const response = await fetch(`${backendUrl}/api/waitlist/broadcast-production-update`, {
+        method: "POST"
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        toast({
+          title: "Broadcast Complete",
+          description: `Successfully sent ${data.sentCount} emails (${data.errorCount} errors).`,
+        });
+      } else {
+        throw new Error("Failed to send broadcast");
+      }
+    } catch (error) {
+      toast({
+        title: "Broadcast Error",
+        description: "Could not complete the broadcast. Please check server logs.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsBroadcasting(false);
+    }
+  };
+
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
       case "paid": return "bg-green-500/10 text-green-600 border-green-500/20";
@@ -127,13 +188,27 @@ const AdminWaitlist = () => {
             <h1 className="font-display text-4xl font-extrabold text-black tracking-tight">WAITLIST ADMIN</h1>
             <p className="font-body text-xs text-zinc-400 uppercase tracking-widest">Dashboard Overview</p>
           </div>
-          <button 
-            onClick={fetchEntries}
-            className="inline-flex items-center gap-2 font-body text-[10px] font-bold uppercase tracking-widest text-black/40 hover:text-black transition-colors"
-          >
-            <RefreshCcw className={`h-3 w-3 ${loading ? 'animate-spin' : ''}`} />
-            Refresh Data
-          </button>
+          <div className="flex flex-col sm:flex-row items-center gap-4">
+            <button 
+              onClick={broadcastProductionUpdate}
+              disabled={isBroadcasting || loading}
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-black text-white px-6 py-3 rounded-xl font-body text-xs font-bold uppercase tracking-widest hover:bg-zinc-800 transition-all active:scale-95 disabled:bg-zinc-400"
+            >
+              {isBroadcasting ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Send className="h-4 w-4" />
+              )}
+              {isBroadcasting ? "Broadcasting..." : "Broadcast Production Update"}
+            </button>
+            <button 
+              onClick={fetchEntries}
+              className="inline-flex items-center gap-2 font-body text-[10px] font-bold uppercase tracking-widest text-black/40 hover:text-black transition-colors"
+            >
+              <RefreshCcw className={`h-3 w-3 ${loading ? 'animate-spin' : ''}`} />
+              Refresh Data
+            </button>
+          </div>
         </div>
 
         {/* Stats Grid */}
@@ -231,6 +306,19 @@ const AdminWaitlist = () => {
                               {emailingFollowupRef === entry.paymentReference ? "Sending..." : "Follow-up"}
                             </button>
                             <button
+                              onClick={() => sendSingleProductionUpdateEmail(entry.paymentReference)}
+                              disabled={emailingProdUpdateRef !== null || emailingRef !== null}
+                              className="inline-flex items-center gap-2 bg-zinc-100 text-black px-4 py-2 rounded-lg font-body text-[10px] font-bold uppercase tracking-widest hover:bg-zinc-200 transition-all active:scale-95 disabled:opacity-50"
+                              title="Send Production Update"
+                            >
+                              {emailingProdUpdateRef === entry.paymentReference ? (
+                                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                              ) : (
+                                <Send className="h-3.5 w-3.5" />
+                              )}
+                              {emailingProdUpdateRef === entry.paymentReference ? "Sending..." : "Prod Update"}
+                            </button>
+                            <button
                               onClick={() => copyLink(entry.paymentReference)}
                               className="inline-flex items-center gap-2 bg-black text-white px-4 py-2 rounded-lg font-body text-[10px] font-bold uppercase tracking-widest hover:bg-zinc-800 transition-all active:scale-95"
                             >
@@ -248,9 +336,24 @@ const AdminWaitlist = () => {
                             </button>
                           </div>
                         ) : (
-                          <span className="font-body text-[10px] font-bold text-green-500 uppercase tracking-widest">
-                            Fulfilled
-                          </span>
+                          <div className="flex justify-end gap-2">
+                            <button
+                              onClick={() => sendSingleProductionUpdateEmail(entry.paymentReference)}
+                              disabled={emailingProdUpdateRef !== null}
+                              className="inline-flex items-center gap-2 bg-green-50 text-white px-4 py-2 rounded-lg font-body text-[10px] font-bold uppercase tracking-widest hover:bg-green-600 transition-all active:scale-95 disabled:opacity-50"
+                              title="Send Production Update"
+                            >
+                              {emailingProdUpdateRef === entry.paymentReference ? (
+                                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                              ) : (
+                                <Send className="h-3.5 w-3.5" />
+                              )}
+                              Prod Update
+                            </button>
+                            <span className="inline-flex items-center font-body text-[10px] font-bold text-green-500 uppercase tracking-widest px-2">
+                              Fulfilled
+                            </span>
+                          </div>
                         )}
                       </td>
                     </tr>
